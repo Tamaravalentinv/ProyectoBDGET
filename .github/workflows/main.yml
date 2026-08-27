@@ -27,11 +27,11 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Run unit and web tests
-        run: bash ./mvnw -B test -Dtest='!BdgetApplicationTests'
+      - name: Build and test with Maven
+        run: bash ./mvnw clean verify -DskipTests=false -Dtest='!BdgetApplicationTests' -B
 
-      - name: Build Docker image
-        run: docker build -t bdget:ci .
+      - name: Build and validate Docker image
+        run: docker build --no-cache -t bdget:ci .
 
   publish:
     name: Publish Docker image
