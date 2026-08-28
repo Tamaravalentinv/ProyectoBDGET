@@ -102,13 +102,66 @@ Se usa Conventional Commits para cambios actuales y futuros:
 | `test:` | Pruebas | `test: agrega caso de actualización de estudiante` |
 | `chore:` | Mantenimiento | `chore: actualiza configuración de Maven` |
 
+## Flujo colaborativo completo con GitFlow
+
+El flujo colaborativo en este proyecto sigue el modelo GitFlow con dos ramas permanentes y dos tipos de ramas de trabajo:
+
+**Desde una feature:**
+```text
+feature/nombre
+    ↓ [Pull Request - Revisión]
+develop
+    ↓ [Pull Request - Revisión]
+main
+```
+
+**Desde un hotfix:**
+```text
+hotfix/nombre
+    ↓ [Pull Request - Revisión]
+main
+    ↓ [Pull Request - Revisión - Sincronización]
+develop
+```
+
+**Secuencia de trabajo típica:**
+
+1. **Crear feature desde develop:**
+   ```bash
+   git switch develop
+   git pull origin develop
+   git switch -c feature/nueva-funcionalidad
+   ```
+
+2. **Realizar cambios y commits convencionales:**
+   ```bash
+   git add .
+   git commit -m "feat: descripción clara del cambio"
+   git push -u origin feature/nueva-funcionalidad
+   ```
+
+3. **Abrir Pull Request:** feature/nueva-funcionalidad → develop
+4. **Revisión y aprobación** en GitHub
+5. **Merge a develop** una vez aprobado
+6. **Sincronización de main:** Cuando develop está lista, Pull Request develop → main
+
+Para hotfix, el flujo es similar pero partiendo desde main.
+
 ## Pull Requests y revisión de código
 
 - `feature/*` se revisa e integra hacia `develop`.
 - `develop` se revisa e integra hacia `main` cuando corresponde publicar una versión estable.
 - `hotfix/*` se revisa e integra hacia `main`; la misma corrección debe llegar también a `develop`.
 
-Antes de un merge se revisan la descripción, los archivos modificados, los commits, el workflow de GitHub Actions y cualquier efecto sobre la configuración. Ningún Pull Request sustituye la revisión humana.
+**Checklist antes de un merge:**
+- [ ] Descripción clara del PR
+- [ ] Archivos modificados son relevantes
+- [ ] Commits siguen Conventional Commits
+- [ ] Workflow de GitHub Actions pasó
+- [ ] Cambios de configuración revisados
+- [ ] Resolución de conflictos (si aplica)
+
+Ningún Pull Request sustituye la revisión humana. La trazabilidad y claridad son esenciales.
 
 ## Trazabilidad de cambios
 
