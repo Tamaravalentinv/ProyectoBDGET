@@ -23,8 +23,8 @@ El repositorio usa GitFlow. Las ramas permanentes son `main` y `develop`; las ra
 | --- | --- |
 | `main` | Código estable, preparado para una entrega o despliegue. |
 | `develop` | Integración de cambios terminados antes de llegar a `main`. |
-| `feature/<nombre>` | Trabajo temporal de una funcionalidad o mejora, creado desde `develop`. Ejemplos: `feature/gestion-estudiantes`, `feature/documentacion-devops`. |
-| `hotfix/<nombre>` | Corrección urgente creada desde `main`. Ejemplo: `hotfix/configuracion-oracle`. |
+| `feature/<nombre>` | Trabajo temporal de una funcionalidad o mejora, creado desde `develop`. Ejemplos: `feature/automatizacion-ci`, `feature/documentacion-devops`. |
+| `hotfix/<nombre>` | Corrección urgente creada desde `main`. Ejemplo: `hotfix/configuracion`. |
 
 ### Otros modelos de ramificación
 
@@ -72,7 +72,7 @@ Para un hotfix, la rama se crea desde `main`; tras corregir y revisar, se integr
 Ejemplo de una feature:
 
 ```bash
-git clone https://github.com/Tamaravalentinv/IngenieriaDevops.git
+git clone https://github.com/Tamaravalentinv/ProyectoBDGET.git
 git switch develop
 git pull origin develop
 git switch -c feature/documentacion-devops
@@ -85,7 +85,7 @@ git push -u origin feature/documentacion-devops
 
 - Usar nombres en minúsculas y palabras separadas por guiones.
 - Crear `feature/<nombre>` desde `develop`, por ejemplo `feature/automatizacion-ci`.
-- Crear `hotfix/<nombre>` desde `main`, por ejemplo `hotfix/configuracion-oracle`.
+- Crear `hotfix/<nombre>` desde `main`, por ejemplo `hotfix/configuracion`.
 - No trabajar directamente sobre `main`.
 - Eliminar ramas remotas solo después de que su Pull Request haya sido integrado.
 
@@ -140,6 +140,73 @@ Pull Request de develop a main
 - Actualizar README, CONTRIBUTING o la configuración cuando el cambio lo requiera.
 - Resolver conflictos y actualizar la rama con su destino antes de solicitar la revisión final.
 
+## Estructura del repositorio
+
+- `.github/workflows/` - Configuración de GitHub Actions para CI/CD.
+- `src/main/java/com/example/bdget/` - Código fuente de la aplicación:
+  - `controller/` - Controladores REST.
+  - `service/` - Lógica de negocio.
+  - `repository/` - Acceso a datos (JPA).
+  - `model/` - Entidades del dominio.
+  - `exception/` - Manejo de excepciones.
+- `src/test/` - Pruebas unitarias e integración (JUnit 5, Mockito, MockMvc).
+- `Dockerfile` - Definición de imagen Docker para la aplicación.
+- `docker-compose.yml` - Orquestación local con Docker Compose.
+- `pom.xml` - Configuración de dependencias y plugins Maven.
+- `mvnw` / `mvnw.cmd` - Maven Wrapper para garantizar consistencia de versión.
+
+## Integración Continua (CI) y Entrega Continua (CD)
+
+GitHub Actions automatiza el pipeline CI/CD del proyecto.
+
+### GitHub Actions Workflow
+
+El workflow se encuentra en `.github/workflows/main.yml` y se ejecuta en dos escenarios:
+
+**1. En eventos `push` hacia `develop`:**
+- Ejecuta compilación y pruebas con Maven.
+- Genera imagen Docker con etiqueta `bdget:ci`.
+- Inicia sesión en Docker Hub usando secrets.
+- Construye imagen final con etiqueta `<usuario>/my-app:latest`.
+- Publica la imagen en Docker Hub.
+
+**2. En eventos `pull_request` hacia `main`:**
+- Ejecuta compilación y pruebas con Maven.
+- Verifica que el build sea exitoso antes de permitir merge.
+
+### Configuración de Secrets
+
+GitHub Secrets configura credenciales de forma segura:
+
+| Secret | Propósito |
+| --- | --- |
+| `DOCKERHUB_USERNAME` | Nombre de usuario de Docker Hub. |
+| `DOCKERHUB_TOKEN` | Token de autenticación de Docker Hub (nunca se expone en logs). |
+
+**Importante:** Los secrets se configuran en Settings > Secrets and variables > Actions del repositorio. Nunca se incluyen en el código ni en el README.
+
+### Pipeline CI/CD Visual
+
+```text
+Código en rama feature/
+         ↓
+    Push a develop
+         ↓
+   GitHub Actions
+         ↓
+  Compilar (Maven)
+         ↓
+  Pruebas (JUnit)
+         ↓
+  Build Docker
+         ↓
+ Docker Login
+         ↓
+ Push a Docker Hub
+         ↓
+     Imagen lista
+```
+
 ## Configuración local
 
 1. Copia `.env.example` como `.env` y completa las credenciales de Oracle.
@@ -151,3 +218,16 @@ Pull Request de develop a main
 # o
 docker compose up --build
 ```
+
+## Uso de Inteligencia Artificial
+
+> ⚠️ **Pendiente del equipo:** Declarar las herramientas de IA utilizadas (si aplica) y explicar brevemente para qué se utilizaron en el desarrollo de este proyecto.
+
+## Conclusiones y reflexiones personales
+
+> ⚠️ **Esta sección debe ser completada personalmente por cada integrante del equipo**, indicando:
+> - Aprendizajes obtenidos durante la evaluación.
+> - Aporte personal en la implementación.
+> - Experiencia con DevOps, Git, GitHub Actions y Docker.
+> - Desafíos superados.
+> - Mejoras futuras identificadas.
