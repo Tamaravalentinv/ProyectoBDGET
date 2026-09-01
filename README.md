@@ -32,7 +32,6 @@ El repositorio usa GitFlow. Las ramas permanentes son `main` y `develop`; las ra
 - **Trunk-Based Development:** integra cambios muy pequeños y frecuentes directamente o casi directamente al tronco. Requiere automatización y pruebas rápidas y confiables.
 - **GitFlow:** separa claramente el desarrollo, las funcionalidades y las correcciones urgentes. En este repositorio se aplica mediante las ramas descritas arriba.
 
-> **[COMPLETAR POR EL EQUIPO: Justificación personal de la elección de GitFlow]**
 
 ## Flujo de trabajo Git
 
@@ -218,16 +217,3 @@ Código en rama feature/
 # o
 docker compose up --build
 ```
-
-## Uso de Inteligencia Artificial
-
-> ⚠️ **Pendiente del equipo:** Declarar las herramientas de IA utilizadas (si aplica) y explicar brevemente para qué se utilizaron en el desarrollo de este proyecto.
-
-## Conclusiones y reflexiones personales
-
-> ⚠️ **Esta sección debe ser completada personalmente por cada integrante del equipo**, indicando:
-> - Aprendizajes obtenidos durante la evaluación.
-> - Aporte personal en la implementación.
-> - Experiencia con DevOps, Git, GitHub Actions y Docker.
-> - Desafíos superados.
-> - Mejoras futuras identificadas.
