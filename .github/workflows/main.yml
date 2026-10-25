@@ -1,4 +1,5 @@
-name: Build and Push Docker Image
+
+name: Build, Test and Push Docker Image
 
 on:
   push:
@@ -7,13 +8,14 @@ on:
   pull_request:
     branches:
       - main
+      - develop
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: Compile and test
+    name: Compile, Test and Coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +31,14 @@ jobs:
 
       - name: Build and test with Maven
         run: bash ./mvnw clean verify -DskipTests=false -Dtest='!BdgetApplicationTests' -B
+
+      - name: Upload JaCoCo coverage report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-report
+          path: target/site/jacoco/
+          if-no-files-found: error
 
       - name: Build and validate Docker image
         run: docker build --no-cache -t bdget:ci .

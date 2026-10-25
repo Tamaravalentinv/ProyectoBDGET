@@ -1,20 +1,25 @@
-FROM eclipse-temurin:22-jdk AS buildstage 
- 
-RUN apt-get update && apt-get install -y maven
+
+# Etapa 1: Compilar el microservicio
+FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
+# Descargar dependencias y aprovechar la cache
 COPY pom.xml .
-COPY src /app/src
-RUN mvn clean package -DskipTests
+RUN mvn dependency:go-offline -B
 
-FROM eclipse-temurin:22-jdk 
+# Copiar el codigo fuente y compilar
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-COPY --from=buildstage /app/target/bdget-0.0.1-SNAPSHOT.jar /app/bdget.jar
+# Etapa 2: Ejecutar el microservicio
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# Copiar el JAR generado
+COPY --from=build /app/target/*.jar /app/app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "-jar","/app/bdget.jar" ]
-
-
-
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
