@@ -43,9 +43,29 @@ jobs:
       - name: Build and validate Docker image
         run: docker build --no-cache -t bdget:ci .
 
+  security:
+    name: Scan Docker image with Trivy
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image for security scan
+        run: docker build -t bdget:security .
+
+      - name: Scan vulnerabilities with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: 'bdget:security'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+
   publish:
     name: Publish Docker image
-    needs: test
+    needs: [test, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
 
