@@ -1,4 +1,3 @@
-
 name: Build, Test, SonarQube, Trivy and Docker
 
 on:
@@ -46,7 +45,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          bash ./mvnw sonar:sonar \
+          bash ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=Tamaravalentinv_ProyectoBDGET \
             -Dsonar.organization=tamaravalentinv \
             -Dsonar.host.url=https://sonarcloud.io \
