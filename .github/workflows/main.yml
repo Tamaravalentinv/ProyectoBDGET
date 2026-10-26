@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload test and coverage reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-and-coverage-reports
           path: |
@@ -171,7 +171,7 @@ jobs:
 
       - name: Upload security reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: security-reports-${{ github.run_id }}
           path: target/security/*.json
@@ -216,7 +216,7 @@ jobs:
           docker save --output target/image/bdget-image.tar bdget-simulation:${{ github.sha }}
 
       - name: Upload validated image
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: application-image-${{ github.run_id }}
           path: target/image/bdget-image.tar
