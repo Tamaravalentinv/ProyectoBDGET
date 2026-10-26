@@ -1,5 +1,4 @@
-
-name: Build, Test and Push Docker Image
+name: Build, Test, SonarQube, Trivy and Docker
 
 on:
   push:
@@ -15,12 +14,14 @@ permissions:
 
 jobs:
   test:
-    name: Compile, Test and Coverage
+    name: Compile, Test, Coverage and SonarQube
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -39,6 +40,18 @@ jobs:
           name: jacoco-coverage-report
           path: target/site/jacoco/
           if-no-files-found: error
+
+      - name: Analyze code with SonarQube Cloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          bash ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=Tamaravalentinv_ProyectoBDGET \
+            -Dsonar.organization=tamaravalentinv \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token="$SONAR_TOKEN" \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -B
 
       - name: Build and validate Docker image
         run: docker build --no-cache -t bdget:ci .
