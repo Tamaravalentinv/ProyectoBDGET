@@ -1,3 +1,4 @@
+
 name: Build, Test, SonarQube, Trivy and Docker
 
 on:
@@ -75,6 +76,45 @@ jobs:
           format: 'table'
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
+
+  deploy:
+    name: Deploy and Validate with Docker Compose
+    needs: [test, security]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy with Docker Compose
+        run: docker compose up -d --build
+
+      - name: Wait for application and validate endpoint
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://localhost:8080/students > /dev/null; then
+              echo "Deployment successful: API responds correctly"
+              exit 0
+            fi
+            echo "Waiting for application..."
+            sleep 5
+          done
+
+          echo "Deployment failed: API did not respond"
+          docker compose logs
+          exit 1
+
+      - name: Show deployment status
+        if: always()
+        run: docker compose ps
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop simulated environment
+        if: always()
+        run: docker compose down
 
   publish:
     name: Publish Docker image
