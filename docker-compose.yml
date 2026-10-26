@@ -6,11 +6,27 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - ${BDGET_ENV_FILE:-.env}
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     volumes:
       - ./Wallet_N72BZHZWYZGTE7OH:/app/wallet:ro
-    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8080/students"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    stop_grace_period: 25s
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 200
+    networks:
+      - bdget
+
+networks:
+  bdget:
+    driver: bridge

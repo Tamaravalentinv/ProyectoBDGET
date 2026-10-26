@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.7</version>
+		<version>4.0.9</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -15,13 +15,14 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
+		<h2.scope>test</h2.scope>
 	</properties>
         <dependencyManagement>
                 <dependencies>
                         <dependency>
                                 <groupId>org.springframework.cloud</groupId>
                                 <artifactId>spring-cloud-dependencies</artifactId>
-                                <version>2023.0.3</version>
+                                <version>2025.1.4</version>
                                 <type>pom</type>
                                 <scope>import</scope>
                         </dependency>
@@ -50,6 +51,16 @@
                         <artifactId>spring-boot-starter-test</artifactId>
                         <scope>test</scope>
                 </dependency>
+                <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-webmvc-test</artifactId>
+                        <scope>test</scope>
+                </dependency>
+                <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-jpa-test</artifactId>
+                        <scope>test</scope>
+                </dependency>
 
                 <dependency>
                         <groupId>org.springframework.cloud</groupId>
@@ -63,6 +74,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>${h2.scope}</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
@@ -116,14 +132,50 @@
                                        </execution>
                                        <execution>
                                                <id>report</id>
-                                               <phase>test</phase>
+                                               <phase>verify</phase>
                                                <goals>
                                                        <goal>report</goal>
                                                </goals>
+												<configuration>
+													<formats>
+														<format>HTML</format>
+														<format>XML</format>
+													</formats>
+												</configuration>
                                        </execution>
+									   <execution>
+										   <id>check</id>
+										   <phase>verify</phase>
+										   <goals>
+											   <goal>check</goal>
+										   </goals>
+										   <configuration>
+											   <rules>
+												   <rule>
+													   <element>BUNDLE</element>
+													   <limits>
+														   <limit>
+															   <counter>LINE</counter>
+															   <value>COVEREDRATIO</value>
+															   <minimum>0.80</minimum>
+														   </limit>
+													   </limits>
+												   </rule>
+											   </rules>
+										   </configuration>
+									   </execution>
                                </executions>
                        </plugin>
                </plugins>
        </build>
+
+	<profiles>
+		<profile>
+			<id>simulation</id>
+			<properties>
+				<h2.scope>runtime</h2.scope>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
