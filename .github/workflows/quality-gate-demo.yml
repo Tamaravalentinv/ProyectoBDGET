@@ -1,0 +1,41 @@
+name: EP3 - Controlled blocked pipeline evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_controlled_failure:
+        description: 'Generate evidence and intentionally fail the mandatory gate'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  controlled_gate:
+    if: ${{ inputs.confirm_controlled_failure }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create synthetic gate input (not a vulnerability)
+        run: |
+          mkdir -p evidence
+          printf '{"demonstration":true,"control":"critical-vulnerability-gate","syntheticCriticalCount":1,"commit":"%s","runId":"%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > evidence/controlled-block.json
+      - name: Upload evidence before blocking
+        uses: actions/upload-artifact@v4
+        with:
+          name: controlled-block-${{ github.run_id }}
+          path: evidence/controlled-block.json
+          retention-days: 30
+      - name: Demonstrate mandatory blocking behavior
+        run: |
+          synthetic_critical_count="$(jq -r '.syntheticCriticalCount' evidence/controlled-block.json)"
+          echo 'This expected failure proves that a mandatory control prevents every downstream job.'
+          test "$synthetic_critical_count" -eq 0
+
+  must_not_run:
+    name: Publication is blocked
+    needs: controlled_gate
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 1

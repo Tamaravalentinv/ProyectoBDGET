@@ -116,7 +116,7 @@ class StudentControllerTest {
         mockMvc.perform(get("/students"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").value("Repository unavailable"))
+                .andExpect(jsonPath("$.message").value("Request could not be completed"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 }

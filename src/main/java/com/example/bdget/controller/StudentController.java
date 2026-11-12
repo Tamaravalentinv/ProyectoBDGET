@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("/students")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "${app.cors.allowed-origins:*}")
 public class StudentController {
     @Autowired
     private StudentService studentService;

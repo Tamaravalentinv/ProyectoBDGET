@@ -14,7 +14,7 @@ services:
     volumes:
       - ./Wallet_N72BZHZWYZGTE7OH:/app/wallet:ro
     healthcheck:
-      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8080/students"]
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:8080/actuator/health/readiness"]
       interval: 30s
       timeout: 5s
       retries: 3

@@ -3,6 +3,7 @@ package com.example.bdget.exception;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +31,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals(400, body.get("status"));
-        assertEquals("Invalid operation", body.get("message"));
+        assertEquals("Request could not be completed", body.get("message"));
         assertInstanceOf(LocalDateTime.class, body.get("timestamp"));
     }
 
@@ -61,6 +62,6 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(500, body.get("status"));
         assertEquals("An unexpected error occurred", body.get("message"));
-        assertEquals("Unexpected detail", body.get("details"));
+        assertFalse(body.containsKey("details"));
     }
 }

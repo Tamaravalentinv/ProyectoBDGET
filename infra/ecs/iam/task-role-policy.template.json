@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "MountOnlyWalletAccessPoint",
+      "Effect": "Allow",
+      "Action": ["elasticfilesystem:ClientMount", "elasticfilesystem:ClientRead"],
+      "Resource": "arn:aws:elasticfilesystem:AWS_REGION:AWS_ACCOUNT_ID:file-system/EFS_FILE_SYSTEM_ID",
+      "Condition": {
+        "StringEquals": {
+          "elasticfilesystem:AccessPointArn": "arn:aws:elasticfilesystem:AWS_REGION:AWS_ACCOUNT_ID:access-point/EFS_ACCESS_POINT_ID"
+        }
+      }
+    }
+  ]
+}

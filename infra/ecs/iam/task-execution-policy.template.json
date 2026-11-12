@@ -1,0 +1,36 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EcrAuthentication",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "PullOnlyApplicationRepository",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "arn:aws:ecr:AWS_REGION:AWS_ACCOUNT_ID:repository/ECR_REPOSITORY"
+    },
+    {
+      "Sid": "WriteOnlyApplicationLogGroup",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:AWS_REGION:AWS_ACCOUNT_ID:log-group:LOG_GROUP_NAME:log-stream:*"
+    },
+    {
+      "Sid": "ReadOnlyOracleSecret",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "ORACLE_SECRET_ARN"
+    }
+  ]
+}
