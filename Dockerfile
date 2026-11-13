@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-jammy@sha256:73ed442231ec66cfe48cae0b263ce619a75ab96d162ab325f38fc0a269ee3aab AS build
+FROM eclipse-temurin:22-jdk-jammy@sha256:d8e6ba486df17bf758888d2b1b608133d1eedca8daf69d3fc6bf78d8be81e07e AS build
 
 ARG MAVEN_PROFILE
 
@@ -25,7 +25,7 @@ RUN if [ -n "$MAVEN_PROFILE" ]; then \
     && test -n "$jar_file" \
     && cp "$jar_file" /workspace/application.jar
 
-FROM eclipse-temurin:17-jre-jammy@sha256:b3054a20e1a851574cdb1692dd0db5310c647e62214a2a7abecbec1b9e3ae8f1 AS runtime
+FROM eclipse-temurin:22-jre-jammy@sha256:dbcae8b5dd4d63f81739a538ec2c09797735f04a21d814f9071b62f018326043 AS runtime
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends curl ca-certificates \
