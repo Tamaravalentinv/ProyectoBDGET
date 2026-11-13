@@ -27,7 +27,10 @@ RUN if [ -n "$MAVEN_PROFILE" ]; then \
 
 FROM eclipse-temurin:17-jre-jammy@sha256:b3054a20e1a851574cdb1692dd0db5310c647e62214a2a7abecbec1b9e3ae8f1 AS runtime
 
-RUN groupadd --system --gid 10001 app \
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 app \
     && useradd --system --uid 10001 --gid app --home-dir /app --shell /usr/sbin/nologin app
 
 WORKDIR /app
@@ -39,6 +42,6 @@ USER 10001:10001
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-    CMD curl --fail --silent --show-error http://localhost:8080/students || exit 1
+    CMD curl --fail --silent --show-error http://localhost:8080/actuator/health/readiness || exit 1
 
-ENTRYPOINT ["java", "-jar", "/app/application.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-XX:+ExitOnOutOfMemoryError", "-jar", "/app/application.jar"]

@@ -1,0 +1,93 @@
+{
+  "family": "bdget",
+  "taskRoleArn": "TASK_ROLE_ARN",
+  "executionRoleArn": "EXECUTION_ROLE_ARN",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "containerDefinitions": [
+    {
+      "name": "bdget",
+      "image": "IMAGE_URI_BY_DIGEST",
+      "essential": true,
+      "readonlyRootFilesystem": true,
+      "user": "10001:10001",
+      "portMappings": [
+        {
+          "name": "http",
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "environment": [
+        { "name": "APP_ENVIRONMENT", "value": "production" },
+        { "name": "SPRING_PROFILES_ACTIVE", "value": "default" },
+        { "name": "CORS_ALLOWED_ORIGINS", "value": "CORS_ALLOWED_ORIGINS_VALUE" }
+      ],
+      "secrets": [
+        { "name": "SPRING_DATASOURCE_URL", "valueFrom": "ORACLE_SECRET_ARN:url::" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "valueFrom": "ORACLE_SECRET_ARN:username::" },
+        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "ORACLE_SECRET_ARN:password::" }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "oracle-wallet",
+          "containerPath": "/app/wallet",
+          "readOnly": true
+        },
+        {
+          "sourceVolume": "temporary-files",
+          "containerPath": "/tmp",
+          "readOnly": false
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl --fail --silent --show-error http://localhost:8080/actuator/health/liveness || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 40
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "LOG_GROUP_NAME",
+          "awslogs-region": "AWS_REGION",
+          "awslogs-stream-prefix": "ecs",
+          "mode": "non-blocking",
+          "max-buffer-size": "25m"
+        }
+      },
+      "linuxParameters": {
+        "initProcessEnabled": true
+      },
+      "stopTimeout": 30
+    }
+  ],
+  "volumes": [
+    {
+      "name": "temporary-files"
+    },
+    {
+      "name": "oracle-wallet",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "EFS_FILE_SYSTEM_ID",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "accessPointId": "EFS_ACCESS_POINT_ID",
+          "iam": "ENABLED"
+        }
+      }
+    }
+  ]
+}
