@@ -18,7 +18,7 @@ if ($PSCmdlet.ShouldProcess($DashboardName, 'Publish CloudWatch dashboard')) {
     $targetDirectory = Join-Path (Split-Path -Parent (Split-Path -Parent $cloudWatchRoot)) 'target/cloudwatch'
     New-Item -ItemType Directory -Path $targetDirectory -Force | Out-Null
     $renderedPath = Join-Path $targetDirectory 'dashboard.rendered.json'
-    Set-Content -Path $renderedPath -Value $body -Encoding utf8
+    [System.IO.File]::WriteAllText($renderedPath, $body, (New-Object System.Text.UTF8Encoding($false)))
     aws cloudwatch put-dashboard --dashboard-name $DashboardName --dashboard-body "file://$($renderedPath.Replace('\','/'))" --region $Region
     if ($LASTEXITCODE -ne 0) { throw 'CloudWatch dashboard publication failed.' }
     $renderedPath
