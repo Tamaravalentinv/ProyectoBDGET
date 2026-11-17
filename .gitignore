@@ -18,3 +18,4 @@ logs/
 *.tmp
 *.temp
 
+/docs/EP3/evidence/
