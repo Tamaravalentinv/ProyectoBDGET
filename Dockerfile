@@ -8,11 +8,19 @@ COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 
 RUN chmod +x ./mvnw \
-    && if [ -n "$MAVEN_PROFILE" ]; then \
-         bash ./mvnw -B -ntp -P"$MAVEN_PROFILE" dependency:go-offline; \
-       else \
-         bash ./mvnw -B -ntp dependency:go-offline; \
-       fi
+    && for attempt in 1 2 3; do \
+         if [ -n "$MAVEN_PROFILE" ]; then \
+           bash ./mvnw -B -ntp -P"$MAVEN_PROFILE" dependency:go-offline && break; \
+         else \
+           bash ./mvnw -B -ntp dependency:go-offline && break; \
+         fi; \
+         if [ "$attempt" -eq 3 ]; then \
+           echo "ERROR: Maven dependency resolution failed after 3 attempts"; \
+           exit 1; \
+         fi; \
+         echo "Maven download failed. Retrying in 20 seconds..."; \
+         sleep 20; \
+       done
 
 COPY src/ src/
 
