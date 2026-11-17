@@ -133,7 +133,20 @@ jobs:
           java-version: '17'
           cache: maven
       - name: Resolve dependency metadata for the scanner
-        run: bash ./mvnw -B -ntp -DskipTests dependency:go-offline
+        run: |
+          for attempt in 1 2 3; do
+            if bash ./mvnw -B -ntp -DskipTests dependency:go-offline; then
+              exit 0
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Maven dependency resolution failed after 3 attempts."
+              exit 1
+            fi
+
+            echo "Maven download failed. Retrying in 20 seconds..."
+            sleep 20
+          done
       - run: mkdir -p target/security
       - name: Scan Maven dependencies
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
