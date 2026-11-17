@@ -1,6 +1,12 @@
 # EP3 — ECS Fargate, observabilidad, seguridad y CI/CD
 
-Este documento describe lo preparado en el repositorio. No afirma que AWS, ECS, CloudWatch, Oracle o GitHub Actions hayan sido ejecutados: esas evidencias deben obtenerse en las cuentas autorizadas.
+Este documento presenta la implementación y validación de la Evaluación Parcial 3 (EP3) del proyecto ProyectoBDGET.
+
+Se ejecutaron satisfactoriamente los controles de integración continua mediante GitHub Actions, incluyendo compilación, pruebas automatizadas, cobertura JaCoCo, análisis de seguridad Trivy, construcción de imágenes Docker y validación local con H2.
+
+Adicionalmente, se realizaron pruebas controladas de infraestructura AWS utilizando ECS Fargate y CloudWatch. Estas corresponden a una simulación académica y no representan un despliegue productivo completo con Oracle.
+
+La arquitectura productiva propuesta contempla integración con Oracle, Secrets Manager, EFS y ALB. Su implementación integral requiere recursos, configuraciones y autorizaciones adicionales. Las evidencias verificadas y las limitaciones se documentan en las secciones siguientes.
 
 ## 1. Arquitectura objetivo
 
@@ -193,19 +199,46 @@ Configurar protección siguiendo [branch-protection.md](branch-protection.md). L
 | IE5 Seguridad | Trivy, Dependabot, JaCoCo/Sonar opcional, OIDC, IAM templates, Secrets Manager/EFS. | Artifacts, findings resueltos/aceptados y configuración GitHub/AWS. |
 | IE6 Bloqueo | `needs`, gates sin tolerancia, manual main-only, environment approval y demo controlada. | Run exitoso y run esperado fallido mostrando jobs posteriores skipped. |
 
-## 9. Evidencias reales pendientes
+## 9. Evidencias reales de la EP3
 
-Crear `docs/EP3/evidence/` solo para capturas sin secretos y registrar:
+Esta sección registra las validaciones realizadas y distingue
+las evidencias disponibles de aquellas que requieren verificación adicional.
 
-| Evidencia | Enlace/captura | Fecha | Responsable | Observaciones |
-| --- | --- | --- | --- | --- |
-| Maven + JaCoCo | Pendiente | Pendiente | Pendiente | Incluir porcentaje real. |
-| Pipeline exitoso | Pendiente | Pendiente | Pendiente | Asociar SHA y run ID. |
-| Pipeline bloqueado | Pendiente | Pendiente | Pendiente | Confirmar downstream skipped. |
-| ECR digest | Pendiente | Pendiente | Pendiente | Ocultar ID si política académica lo exige. |
-| ECS estable/ALB healthy | Pendiente | Pendiente | Pendiente | Sin URLs internas sensibles. |
-| Logs y dashboard | Pendiente | Pendiente | Pendiente | Seleccionar período con datos reales. |
-| Rollback | Pendiente | Pendiente | Pendiente | Usar ambiente autorizado. |
+| Evidencia | Resultado | Referencia | Estado |
+| --- | --- | --- | --- |
+| Pruebas Maven | 33 pruebas aprobadas, sin fallos | Validación local clean verify | Verificado |
+| Cobertura JaCoCo | 96,72 % de líneas en ejecución anterior | Run 44177535702, jacoco.xml | Verificado |
+| Trivy dependencias | 2 HIGH corregidas; análisis posterior sin hallazgos | Runs 44177535702 y 44181598986 | Verificado |
+| Trivy imagen | Sin vulnerabilidades reportadas | Run 44177535702, trivy-image.json | Verificado |
+| Trivy configuración y secretos | Sin hallazgos reportados | Run 44181598986 | Verificado |
+| Pipeline final | SUCCESS; controles obligatorios aprobados | Run 44182852819 | Verificado |
+| ECS Fargate | Simulación académica realizada previamente | Evidencia AWS por incorporar | Pendiente de documentar |
+| CloudWatch | Dashboard y monitoreo de simulación | Evidencia AWS por incorporar | Pendiente de documentar |
+| ECR | Imagen publicada durante la simulación previa | Digest y captura por incorporar | Pendiente de documentar |
+| Pipeline bloqueado | Demostración de quality gate | Ejecución fallida controlada por identificar | Pendiente de verificar |
+| Rollback | Procedimiento y script disponibles | Ejecución o validación por documentar | Pendiente de verificar |
+| Oracle productivo, ALB y EFS | Arquitectura propuesta | No corresponde a despliegue productivo verificado | No implementado integralmente |
+
+### 9.1 Ejecuciones de GitHub Actions
+
+- Pipeline final:
+  https://github.com/Tamaravalentinv/ProyectoBDGET/actions/runs/44182852819
+- Validación anterior:
+  https://github.com/Tamaravalentinv/ProyectoBDGET/actions/runs/44177535702
+- Validación posterior a corrección de seguridad:
+  https://github.com/Tamaravalentinv/ProyectoBDGET/actions/runs/44181598986
+- Pull Request de seguridad:
+  https://github.com/Tamaravalentinv/ProyectoBDGET/pull/31
+
+Los reportes originales descargados se conservan localmente en
+`docs/EP3/evidence/` y no forman parte de la selección para publicación.
+
+Los reportes seleccionados y su descripción están disponibles en
+[Índice de evidencias de la EP3](evidence-selected/INDEX.md).
+
+La selección fue sometida a una revisión preliminar de posibles
+credenciales. Esta revisión no garantiza la ausencia de información
+sensible y debe complementarse antes de publicar los archivos.
 
 ## 10. Costos, riesgos y limitaciones
 
@@ -214,35 +247,133 @@ Crear `docs/EP3/evidence/` solo para capturas sin secretos y registrar:
 - CloudWatch cobra ingestión/retención de logs, métricas personalizadas y dashboards. La retención propuesta es 30 días.
 - EFS cobra almacenamiento y acceso; mantener solo archivos Wallet necesarios.
 - Secrets Manager cobra por secret y llamadas.
-- La configuración no ha sido probada contra la cuenta AWS ni Oracle reales.
+- Se realizaron pruebas académicas controladas en AWS con ECS Fargate y CloudWatch. Sin embargo, no se ha validado integralmente la arquitectura productiva con Oracle, EFS, Secrets Manager y ALB.
 - La imagen base está fijada por digest, pero debe renovarse con Dependabot y volver a escanearse.
 - `/actuator/metrics` no contiene secretos por diseño, aunque conviene restringir Actuator al ALB/red interna en producción.
 
 ## 11. Decisiones, conclusiones y reflexiones
 
-Completar por el equipo:
+### 11.1 Decisiones técnicas
 
-| Tema | Decisión y justificación humana |
+| Tema | Decisión y justificación |
 | --- | --- |
-| Región y topología de red | Pendiente. |
-| Dimensionamiento CPU/memoria/réplicas | Pendiente. |
-| Estrategia Oracle privada | Pendiente. |
-| ALB público o interno | Pendiente. |
-| Umbrales y excepciones de seguridad | Pendiente; toda excepción debe tener dueño y vencimiento. |
-| Conclusión del equipo | Pendiente. |
+| Región AWS | Se utilizó us-east-1 durante la simulación académica, manteniendo consistencia con los recursos configurados. |
+| Plataforma de contenedores | Se seleccionó ECS Fargate para administrar tareas sin gestionar directamente servidores EC2. |
+| Dimensionamiento | La simulación utilizó una tarea de 0,5 vCPU y 1 GB de memoria. Para producción se propone evaluar al menos dos tareas y ajustar recursos mediante métricas reales. |
+| Estrategia de base de datos | H2 permitió validar la aplicación sin depender de Oracle. La integración productiva con Oracle requiere conectividad, secretos y Wallet configurados. |
+| Red y balanceador | La arquitectura objetivo contempla subredes privadas y un ALB HTTPS. No se considera acreditada su implementación productiva. |
+| Seguridad | Se aplicaron controles automatizados con Trivy, JaCoCo y validaciones de CI/CD. Se corrigieron dos hallazgos HIGH de Apache HttpCore mediante la actualización a 5.4.3. |
+| Despliegue | Se mantuvo la publicación y el despliegue AWS sujetos a ejecución manual y autorización, evitando despliegues automáticos desde cada push. |
+| Costos | Se priorizó la validación local y el uso controlado de AWS para evitar consumo innecesario de recursos durante las pruebas académicas. |
 
-Reflexiones individuales:
+### 11.2 Conclusión del proyecto
 
-- Integrante 1: pendiente.
-- Integrante 2: pendiente.
-- Integrante 3: pendiente, si corresponde.
+El desarrollo de la EP3 permitió fortalecer la aplicación ProyectoBDGET mediante la incorporación de observabilidad, controles de seguridad y automatización del proceso de integración continua.
 
-### Declaración de uso de IA
+Las pruebas automatizadas finalizaron satisfactoriamente, con 33 pruebas aprobadas y el cumplimiento del umbral mínimo de cobertura JaCoCo. Además, el análisis de seguridad permitió identificar y corregir vulnerabilidades en dependencias transitivas, demostrando la utilidad de incorporar controles preventivos dentro del pipeline.
 
-| Campo | Declaración del equipo |
+La implementación de Docker y la validación local con H2 permitieron comprobar el funcionamiento de la aplicación sin depender permanentemente de infraestructura AWS. Por otra parte, las pruebas académicas con ECS Fargate y CloudWatch permitieron explorar el despliegue y monitoreo de contenedores en la nube.
+
+Como principal limitación, la arquitectura productiva completa con Oracle, EFS, Secrets Manager y ALB no quedó acreditada mediante una validación integral. Por ello, se distingue entre las funcionalidades implementadas, las pruebas realizadas y los componentes propuestos para una futura puesta en producción.
+
+En conclusión, el proyecto alcanzó una base técnica más segura, observable y automatizada, manteniendo trazabilidad de sus resultados y controles sobre los despliegues.
+
+### 11.3 Reflexiones individuales
+
+Las siguientes reflexiones deben ser completadas y revisadas por sus respectivos integrantes antes de la entrega.
+
+- Integrante 1: pendiente de completar.
+- Integrante 2: pendiente de completar, si corresponde.
+- Integrante 3: pendiente de completar, si corresponde.
+
+### 11.4 Declaración de uso de IA
+
+| Campo | Declaración |
 | --- | --- |
-| Herramienta y versión | Pendiente. |
-| Actividades asistidas | Pendiente. |
-| Verificación humana | Pendiente. |
-| Cambios aceptados, corregidos o descartados | Pendiente. |
-| Limitaciones observadas | Pendiente. |
+| Herramienta | ChatGPT de OpenAI, utilizado como apoyo durante el desarrollo y documentación. |
+| Actividades asistidas | Orientación para comandos PowerShell, revisión de resultados, análisis de errores, organización de evidencias y redacción técnica. |
+| Verificación humana | Los comandos se ejecutaron en el entorno del proyecto y sus resultados se contrastaron con Maven, Git, GitHub Actions y los informes de seguridad disponibles. |
+| Cambios aceptados o corregidos | Se revisaron las propuestas antes de incorporarlas; se realizaron ajustes a dependencias, controles y documentación según los resultados obtenidos. |
+| Limitaciones | Las sugerencias de IA requieren validación técnica y no sustituyen la ejecución real ni las evidencias de infraestructura. |
+| Revisión del equipo | Pendiente de confirmar antes de la entrega. |
+
+## 12. Resultados reales de validación — 17 de noviembre de 2026
+
+### 12.1 Integración continua
+
+El pipeline EP3 - Build, Secure and ECS Fargate fue ejecutado
+correctamente en GitHub Actions.
+
+- Repositorio: https://github.com/Tamaravalentinv/ProyectoBDGET
+- Rama definitiva: main
+- Commit validado: 31880bd
+- Ejecución final: https://github.com/Tamaravalentinv/ProyectoBDGET/actions/runs/44182852819
+- Resultado: SUCCESS.
+- Duración: 5 minutos y 16 segundos.
+
+Los controles de compilación, pruebas, cobertura, seguridad,
+construcción Docker y disponibilidad local finalizaron correctamente.
+
+Los trabajos de publicación en ECR, despliegue ECS y validación
+posterior al despliegue quedaron omitidos intencionalmente.
+No se realizó un nuevo despliegue AWS mediante esta ejecución.
+
+### 12.2 Pruebas automatizadas y cobertura
+
+La validación local mediante Maven clean verify obtuvo:
+
+- 33 pruebas ejecutadas.
+- 0 fallos.
+- 0 errores.
+- 0 pruebas omitidas.
+- BUILD SUCCESS.
+- Control JaCoCo aprobado con umbral mínimo del 80 %.
+
+El informe JaCoCo de la ejecución 44177535702 registró
+59 líneas cubiertas de 61, equivalentes al 96,72 %.
+
+### 12.3 Corrección de vulnerabilidades
+
+Se identificaron dos hallazgos HIGH en las dependencias
+transitivas Apache HttpCore:
+
+- CVE-2026-54399: httpcore5 5.3.6.
+- CVE-2026-54428: httpcore5-h2 5.3.6.
+
+La corrección consistió en agregar la propiedad Maven
+httpcore5.version con valor 5.4.3, sin modificar el código
+de la aplicación ni las versiones de Spring Boot y Spring Cloud.
+
+Pull Request:
+https://github.com/Tamaravalentinv/ProyectoBDGET/pull/31
+
+Comparación de resultados Trivy:
+
+| Severidad | Antes | Después |
+| --- | ---: | ---: |
+| CRITICAL | 0 | 0 |
+| HIGH | 2 | 0 |
+| MEDIUM | 0 | 0 |
+| LOW | 0 | 0 |
+
+Ejecución anterior:
+https://github.com/Tamaravalentinv/ProyectoBDGET/actions/runs/44177535702
+
+Ejecución posterior:
+https://github.com/Tamaravalentinv/ProyectoBDGET/actions/runs/44181598986
+
+Estos resultados corresponden al análisis de dependencias.
+No constituyen una garantía de ausencia de cualquier vulnerabilidad.
+
+### 12.4 Alcance y limitaciones
+
+La validación de GitHub Actions incluyó una simulación local
+con Docker y base de datos H2.
+
+La arquitectura productiva propuesta contempla Oracle,
+Secrets Manager, EFS, ALB y despliegue controlado en ECS Fargate.
+
+La ejecución final del pipeline no acredita por sí sola
+el despliegue completo de esa arquitectura productiva.
+Las evidencias de ECS y CloudWatch deben documentarse
+por separado a partir de recursos efectivamente verificados.
