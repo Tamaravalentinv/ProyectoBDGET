@@ -1,0 +1,69 @@
+{
+    "family":  "bdget-simulation",
+    "taskRoleArn":  "arn:aws:iam::767397685263:role/LabRole",
+    "executionRoleArn":  "arn:aws:iam::767397685263:role/LabRole",
+    "networkMode":  "awsvpc",
+    "requiresCompatibilities":  [
+                                    "FARGATE"
+                                ],
+    "cpu":  "512",
+    "memory":  "1024",
+    "runtimePlatform":  {
+                            "cpuArchitecture":  "X86_64",
+                            "operatingSystemFamily":  "LINUX"
+                        },
+    "containerDefinitions":  [
+                                 {
+                                     "name":  "bdget",
+                                     "image":  "767397685263.dkr.ecr.us-east-1.amazonaws.com/proyecto-bdget@sha256:8fced2ba4739392c860ead3153b8b83a7f1c47244052702c07833a225579e3b0",
+                                     "essential":  true,
+                                     "readonlyRootFilesystem":  false,
+                                     "user":  "10001:10001",
+                                     "portMappings":  [
+                                                          {
+                                                              "containerPort":  8080,
+                                                              "hostPort":  8080,
+                                                              "protocol":  "tcp"
+                                                          }
+                                                      ],
+                                     "environment":  [
+                                                         {
+                                                             "name":  "SPRING_PROFILES_ACTIVE",
+                                                             "value":  "simulation"
+                                                         },
+                                                         {
+                                                             "name":  "SPRING_CLOUD_CONFIG_ENABLED",
+                                                             "value":  "false"
+                                                         },
+                                                         {
+                                                             "name":  "APP_ENVIRONMENT",
+                                                             "value":  "simulation"
+                                                         }
+                                                     ],
+                                     "mountPoints":  [
+
+                                                     ],
+                                     "healthCheck":  {
+                                                         "command":  [
+                                                                         "CMD-SHELL",
+                                                                         "curl --fail --silent http://localhost:8080/actuator/health/liveness || exit 1"
+                                                                     ],
+                                                         "interval":  30,
+                                                         "timeout":  5,
+                                                         "retries":  3,
+                                                         "startPeriod":  40
+                                                     },
+                                     "logConfiguration":  {
+                                                              "logDriver":  "awslogs",
+                                                              "options":  {
+                                                                              "awslogs-group":  "/ecs/proyecto-bdget",
+                                                                              "awslogs-region":  "us-east-1",
+                                                                              "awslogs-stream-prefix":  "ecs"
+                                                                          }
+                                                          }
+                                 }
+                             ],
+    "volumes":  [
+
+                ]
+}

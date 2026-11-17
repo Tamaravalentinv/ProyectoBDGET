@@ -9,7 +9,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$transform = "metricName=ApplicationErrorCount,metricNamespace=$Namespace,metricValue=1,defaultValue=0,unit=Count,dimensions={Application=bdget,Environment=$EnvironmentName,Service=$Service}"
+$transform = "metricName=ApplicationErrorCount,metricNamespace=$Namespace,metricValue=1,defaultValue=0,unit=Count"
 if ($PSCmdlet.ShouldProcess($LogGroup, "Create or update metric filter '$FilterName'")) {
     aws logs put-metric-filter --log-group-name $LogGroup --filter-name $FilterName --filter-pattern '"level=ERROR"' --metric-transformations $transform --region $Region
     if ($LASTEXITCODE -ne 0) { throw 'CloudWatch Logs metric filter publication failed.' }
